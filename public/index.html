@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>Application</title>
+  <!-- Require the main Stitch file -->
+  <script src="/application.js" type="text/javascript" charset="utf-8"></script>
+  <script src="http://documentcloud.github.com/underscore/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+  <!--<script src="http://documentcloud.github.com/backbone/backbone-min.js" type="text/javascript" charset="utf-8"></script>-->
+  <script src="http://cloud.github.com/downloads/SteveSanderson/knockout/knockout-2.0.0.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
+    document.addEventListener("DOMContentLoaded", function(){
+      var App = require("app");
+      App.init();
+      //window.setInterval(function() { App.network.run(); } , 2000)
+      var viewModel = { 
+                      network : App.network, 
+                      pauseNetwork : function() {
+                                         App.network.isRunning=false;
+				      },
+                      unpauseNetwork : function() {
+                                          App.network.isRunning=true;
+				      },
+                      killFrame : function(killFrame){
+                                          //alert(killFrame);
+					  App.network.removeFrame(killFrame);
+                                          App.network.isRunning=true;
+					}
+
+               
+                     };
+      ko.applyBindings(viewModel);
+      //App.network.sendFrame();
+      //App.startSending();
+    }, false);
+  </script>
+
+
+
+  <script id="receiverSlotTemplate" type="text/html">
+     <div class="packet" data-bind="style: { left: $data.num*50 + 'px' }">
+          <span data-bind="text: $data.num"></span>
+     </div>
+  </script>
+
+  
+  <script id="senderSlotTemplate" type="text/html">
+     <div class="packet" data-bind="style: { top:100 + 'px', left: $data.num*50 + 'px' }">
+          <span data-bind="text: $data.num"></span>
+     </div>
+  </script>
+
+  <script id="packetTemplate" type="text/html">
+     <div class="packet" data-bind="style: { top:stepNumber()*10 + 'px', left: seqNum*50 + 'px' }">
+          <span data-bind="event:{mouseover:$parent.pauseNetwork,mouseout:$parent.unpauseNetwork,click:$parent.killFrame}, text: seqNum"></span>
+     </div>
+  </script>
+
+  <style type="text/css">
+   div.packet {
+      position:absolute;
+      top:0;
+      right:0;
+      width:200px;
+    } 
+  </style>
+</head>
+<body>
+   
+    <table>
+<!--
+    	<thead>
+        	<tr><th>Step Number</th></tr>
+    	</thead>
+    	<tbody data-bind="foreach: _.compact(network.framesInFlight())">
+        	<tr>
+            		<td data-bind="text: seqNum"></td>
+        	</tr>
+    	</tbody>
+	</table> -->
+
+	<div data-bind="template: { name: 'senderSlotTemplate', foreach: network.sender.frameSlots }">
+        </div>
+
+
+	<div data-bind="template: { name: 'packetTemplate', foreach: _.compact(network.framesInFlight()) }">
+        </div>
+
+
+	<div data-bind="template: { name: 'receiverSlotTemplate', foreach: network.receiver.frameSlots }">
+        </div>
+
+	<canvas id="canvas"></canvas>
+</body>
+</html>
