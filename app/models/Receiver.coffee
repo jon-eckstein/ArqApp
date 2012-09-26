@@ -22,6 +22,7 @@ class Receiver extends NetworkNode
     #console.log "last seqNum received " + frame.seqNum
       ack = @send(frame)
       return ack
+    else return null
   
     
       
